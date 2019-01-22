@@ -8,11 +8,16 @@ import com.monitoring.actuator.repo.UserRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.concurrent.Future;
+
 
 @Service
+@EnableAsync
 public class UserService {
 
 
@@ -56,5 +61,16 @@ public class UserService {
             throw er;
         }
         return userDTO;
+    }
+
+    @Async
+    public void waitTest() {
+        Future<String> stringFuture = userMapper.waitTest();
+        try {
+            Thread.sleep(700);
+            stringFuture.get();
+        } catch (Exception er) {
+        }
+
     }
 }

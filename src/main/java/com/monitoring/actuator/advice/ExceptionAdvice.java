@@ -14,6 +14,7 @@ public class ExceptionAdvice {
         MyError error = new MyError();
         error.setType(e.getClass().getName());
         error.setValue(e.getMessage());
+        error.getType();
         ResponseEntity<MyError> responseEntity = new ResponseEntity<MyError>(error, HttpStatus.BAD_REQUEST);
         return responseEntity;
     }
