@@ -1,17 +1,18 @@
 package com.monitoring.actuator.controller;
 
+import brave.Tracer;
+import brave.propagation.TraceContext;
 import com.monitoring.actuator.Feign.ActuatorClient;
 import com.monitoring.actuator.Feign.Fieng2;
 import com.monitoring.actuator.dto.UserDTO;
+import com.monitoring.actuator.kafka.KafkaProducer;
 import com.monitoring.actuator.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.sleuth.SpanName;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 public class UserController {
@@ -30,6 +31,9 @@ public class UserController {
     @Autowired
     private Fieng2 fieng2;
 
+    @Autowired
+    private KafkaProducer kafkaProducer;
+
     Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     @RequestMapping(method = RequestMethod.POST, value = "/setUser")
@@ -42,7 +46,8 @@ public class UserController {
 
     @RequestMapping(method = RequestMethod.GET, value = "/getUser")
     public UserDTO setUser(@RequestParam Long Id) {
-        userService.waitTest();
+        //  userService.waitTest();
+        //userService.waitTest2();
         return userService.getUser(Id);
     }
 
@@ -56,6 +61,7 @@ public class UserController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/get2")
+    @SpanName(value = "nabeel")
     public Object getUserIndirect(@RequestParam Long Id) {
         LOGGER.info("this is request /insert");
         UserDTO userDTO = actuatorClient.findById(Id);
@@ -68,6 +74,18 @@ public class UserController {
         LOGGER.info("this is request /insert");
         UserDTO userDTO = fieng2.findById(Id);
         return userDTO;
+    }
+
+
+    @RequestMapping(method = RequestMethod.GET, value = "/produce")
+    public void produce(@RequestParam String value) {
+        LOGGER.info("procing " + value);
+        kafkaProducer.send("key ", value);
+    }
+
+    @Override
+    public String toString() {
+        return "ToString";
     }
 }
 
